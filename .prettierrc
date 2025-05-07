@@ -1,0 +1,10 @@
+{
+  "trailingComma": "es5",
+  "semi": true,
+  "singleQuote": false,
+  "bracketSpacing": true,
+  "jsxBracketSpacing": true,
+  "printWidth": 80,
+  "proseWrap": "always",
+  "plugins": ["prettier-plugin-tailwindcss"]
+}
