@@ -1,8 +1,10 @@
+import { ContactsContent } from "@/content";
+
 function App() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900">
-      <h1>Boilerplate</h1>
-    </div>
+    <main className="min-h-screen bg-gray-950 text-gray-200">
+      <ContactsContent />
+    </main>
   );
 }
 

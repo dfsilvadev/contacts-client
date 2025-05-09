@@ -1,4 +1,4 @@
-export type Id = string;
+type Id = string;
 
 export type Contact = {
   readonly id: Id;

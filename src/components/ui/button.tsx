@@ -9,13 +9,13 @@ import {
 import { cn } from "@/lib/utils/cn";
 
 const buttonVariants = cva(
-  "flex gap-2 w-full items-center justify-center rounded-sm  px-3 py-1.5 text-sm/4 focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer disabled:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-90 disabled:text-gray-700",
+  "flex gap-2 w-full items-center text-slate-50 justify-center rounded-sm  px-3 py-1.5 text-sm/4 focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer disabled:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-90 disabled:text-gray-700",
   {
     variants: {
       variant: {
         default:
-          "bg-violet-800 text-slate-50 hover:bg-violet-800/90 focus-visible:outline-violet-900 ",
-        destructive: "bg-red-600  hover:bg-red-600/90",
+          "bg-violet-800  hover:bg-violet-800/90 focus-visible:outline-violet-900 ",
+        destructive: "bg-red-600  hover:bg-red-600/90 ",
         outline: "border border-gray-800 bg-transparent  hover:bg-violet-800 ",
         ghost: "hover:bg-violet-800 ",
         link: "text-secondary underline-offset-4 hover:underline",
