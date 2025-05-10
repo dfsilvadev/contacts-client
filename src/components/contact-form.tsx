@@ -17,7 +17,12 @@ const contactFormSchema = z.object({
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 
-const ContactForm = () => {
+interface Dependencies {
+  readonly title: string;
+  readonly description: string;
+}
+
+const ContactForm = ({ title, description }: Dependencies) => {
   const {
     register,
     handleSubmit,
@@ -38,11 +43,11 @@ const ContactForm = () => {
       onSubmit={handleSubmit(onSubmit)}
     >
       <Dialog.Title className="text-lg font-semibold text-slate-50">
-        Adicionar novo contato
+        {title}
       </Dialog.Title>
 
       <Dialog.Description className="mt-2 text-sm text-gray-400">
-        Preencha os campos abaixo para adicionar um novo contato.
+        {description}
       </Dialog.Description>
 
       <div className="mt-4 flex gap-2">
