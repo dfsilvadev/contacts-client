@@ -1,10 +1,15 @@
 import { ContactsContent } from "@/content";
+import { Provider } from "react-redux";
+
+import { store } from "./store";
 
 function App() {
   return (
-    <main className="min-h-screen bg-gray-950 text-gray-200">
-      <ContactsContent />
-    </main>
+    <Provider {...{ store }}>
+      <main className="min-h-screen bg-gray-950 text-gray-200">
+        <ContactsContent />
+      </main>
+    </Provider>
   );
 }
 

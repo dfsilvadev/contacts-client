@@ -1,14 +1,7 @@
 /* eslint-disable no-constant-condition */
-import * as Dropdown from "@radix-ui/react-dropdown-menu";
-import {
-  CaretDown,
-  CaretUp,
-  DotsThreeVertical,
-  PencilLine,
-  Trash,
-} from "phosphor-react";
+import { CaretDown, CaretUp } from "phosphor-react";
 
-import { Badge, Button } from ".";
+import { Badge, DropdownActions } from ".";
 
 import dateHelper from "@/utils/dateHelperConfiguration";
 
@@ -62,29 +55,7 @@ const Table = ({ contacts }: Dependencies) => {
                       {dateHelper.formatDate(contact.createdAt)}
                     </td>
                     <td className="rounded-r-sm bg-gray-900 px-2 py-2">
-                      <Dropdown.Root>
-                        <Dropdown.Trigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <DotsThreeVertical size={20} />
-                          </Button>
-                        </Dropdown.Trigger>
-
-                        <Dropdown.Portal>
-                          <Dropdown.Content
-                            className="w-20 rounded-md bg-gray-800 p-2 shadow-md"
-                            sideOffset={5}
-                          >
-                            <Dropdown.Item className="flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 text-sm text-gray-400 hover:bg-gray-800">
-                              <PencilLine size={15} />
-                            </Dropdown.Item>
-                            <Dropdown.Item className="flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 text-sm text-gray-400 hover:bg-gray-800">
-                              <Trash size={15} />
-                            </Dropdown.Item>
-
-                            <Dropdown.Arrow className="fill-gray-800" />
-                          </Dropdown.Content>
-                        </Dropdown.Portal>
-                      </Dropdown.Root>
+                      <DropdownActions />
                     </td>
                   </tr>
                 ))}

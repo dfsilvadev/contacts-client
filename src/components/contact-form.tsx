@@ -50,7 +50,7 @@ const ContactForm = ({ title, description }: Dependencies) => {
         {description}
       </Dialog.Description>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
         <TextField
           type="text"
           placeholder="John Doe"
@@ -66,7 +66,7 @@ const ContactForm = ({ title, description }: Dependencies) => {
         />
       </div>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
         <TextField
           type="text"
           placeholder="(XX) XXXXX-XXXX"

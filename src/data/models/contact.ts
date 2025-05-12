@@ -10,3 +10,22 @@ export type Contact = {
   readonly createdAt: string;
   readonly updatedAt: string | null;
 };
+
+export type Pagination = {
+  readonly totalItems: number;
+  readonly totalPages: number;
+  readonly registersPerPage: number;
+  readonly currentPage: number;
+  readonly hasNextPage: boolean;
+  readonly hasPreviousPage: boolean;
+  readonly nextPage: number;
+  readonly previousPage: number;
+  readonly firstPage: number;
+  readonly lastPage: number;
+};
+
+export type ContactResponse = {
+  readonly details: Contact[];
+  readonly pagination: Pagination;
+  readonly status: string;
+};
