@@ -7,18 +7,23 @@ import { Button, ContactForm, Modal } from "..";
 import DeleteContactModalContent from "../delete-contact-modal-content";
 
 const initialState: ModalState = {
-  edit: { open: false, userId: null },
-  delete: { open: false, userId: null },
+  edit: { open: false, contactId: null },
+  delete: { open: false, contactId: null },
 };
 
 interface ModalState {
-  edit: { open: boolean; userId: string | null };
-  delete: { open: boolean; userId: string | null };
+  edit: { open: boolean; contactId: string | null };
+  delete: { open: boolean; contactId: string | null };
 }
 
-interface ModalAction {
+type ModalAction = {
   type: "TOGGLE_MODAL";
   modal: keyof ModalState;
+  contactId: string | null;
+};
+
+interface Dependencies {
+  readonly contactId: string;
 }
 
 const modalReducer = (state: ModalState, action: ModalAction): ModalState => {
@@ -26,7 +31,10 @@ const modalReducer = (state: ModalState, action: ModalAction): ModalState => {
     case "TOGGLE_MODAL":
       return {
         ...state,
-        [action.modal]: { open: !state[action.modal].open, userId: null },
+        [action.modal]: {
+          open: !state[action.modal].open,
+          contactId: action.contactId,
+        },
       };
 
     default:
@@ -34,14 +42,14 @@ const modalReducer = (state: ModalState, action: ModalAction): ModalState => {
   }
 };
 
-const DropdownActions = () => {
+const DropdownActions = ({ contactId }: Dependencies) => {
   const [modalState, dispatch] = useReducer(modalReducer, initialState);
 
   const title = "Editar Contato";
   const description = "Altere os campos abaixo para editar o contato.";
 
-  const toggleModal = (modal: keyof ModalState) => {
-    dispatch({ type: "TOGGLE_MODAL", modal });
+  const toggleModal = (modal: keyof ModalState, contactId: string | null) => {
+    dispatch({ type: "TOGGLE_MODAL", modal, contactId });
   };
 
   return (
@@ -61,7 +69,7 @@ const DropdownActions = () => {
             {/* Edit Contact */}
             <Dropdown.Item
               className="flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 text-sm text-gray-400 hover:bg-gray-800"
-              onClick={() => toggleModal("edit")}
+              onClick={() => toggleModal("edit", contactId)}
             >
               <PencilLine size={15} />
             </Dropdown.Item>
@@ -69,7 +77,7 @@ const DropdownActions = () => {
             {/* Delete Contact */}
             <Dropdown.Item
               className="flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 text-sm text-gray-400 hover:bg-gray-800"
-              onClick={() => toggleModal("delete")}
+              onClick={() => toggleModal("delete", contactId)}
             >
               <Trash size={15} />
             </Dropdown.Item>
@@ -82,17 +90,19 @@ const DropdownActions = () => {
       {/* <Modal Edit/> */}
       <Dialog.Root
         open={modalState.edit.open}
-        onOpenChange={() => toggleModal("edit")}
+        onOpenChange={() => toggleModal("edit", null)}
       >
         <Modal>
-          <ContactForm {...{ title, description }} />
+          <ContactForm
+            {...{ title, description, contactId: modalState.edit.contactId }}
+          />
         </Modal>
       </Dialog.Root>
 
       {/* <Modal Delete/> */}
       <Dialog.Root
         open={modalState.delete.open}
-        onOpenChange={() => toggleModal("delete")}
+        onOpenChange={() => toggleModal("delete", null)}
       >
         <Modal>
           <DeleteContactModalContent />

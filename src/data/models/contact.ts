@@ -24,8 +24,8 @@ export type Pagination = {
   readonly lastPage: number;
 };
 
-export type ContactResponse = {
-  readonly details: Contact[];
+export type ContactResponse<T> = {
+  readonly details: T;
   readonly pagination: Pagination;
   readonly status: string;
 };

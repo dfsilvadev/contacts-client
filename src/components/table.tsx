@@ -55,7 +55,7 @@ const Table = ({ contacts }: Dependencies) => {
                       {dateHelper.formatDate(contact.createdAt)}
                     </td>
                     <td className="rounded-r-sm bg-gray-900 px-2 py-2">
-                      <DropdownActions />
+                      <DropdownActions contactId={contact.id} />
                     </td>
                   </tr>
                 ))}

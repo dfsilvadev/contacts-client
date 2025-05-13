@@ -26,7 +26,9 @@ const ContactsContent = () => {
   );
 
   useEffect(() => {
+    const controller = new AbortController();
     dispatch(fetchContacts({ page, limit }));
+    return () => controller.abort();
   }, [dispatch, page]);
 
   return (
@@ -35,10 +37,14 @@ const ContactsContent = () => {
       <Header />
 
       {/* <Table /> */}
-      {contacts.length && <Table {...{ contacts }} />}
+      {Array.isArray(contacts) && contacts.length > 0 && (
+        <Table {...{ contacts }} />
+      )}
 
       {/* <Pagination /> */}
-      {contacts.length && <Pagination {...{ pagination, onChangePage }} />}
+      {Array.isArray(contacts) && contacts.length && (
+        <Pagination {...{ pagination, onChangePage }} />
+      )}
     </section>
   );
 };

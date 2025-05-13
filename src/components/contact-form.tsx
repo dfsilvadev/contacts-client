@@ -1,10 +1,16 @@
-/* eslint-disable no-console */
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Dialog from "@radix-ui/react-dialog";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button, Select, TextField } from ".";
+
+import { fetchContactById } from "@/features/contacts/slices/contactSlice";
+
+import { fetchCategories } from "@/features/categories/slice/categorySlice";
+import useAppDispatch from "@/hooks/useAppDispatch";
+import useAppSelector from "@/hooks/useAppSelector";
 
 const contactFormSchema = z.object({
   name: z
@@ -20,9 +26,16 @@ export type ContactFormData = z.infer<typeof contactFormSchema>;
 interface Dependencies {
   readonly title: string;
   readonly description: string;
+  readonly contactId: string | null;
 }
 
-const ContactForm = ({ title, description }: Dependencies) => {
+const ContactForm = ({ title, description, contactId }: Dependencies) => {
+  const dispatch = useAppDispatch();
+  const { contactById: currentContact } = useAppSelector(
+    (state) => state.contact
+  );
+  const { categories } = useAppSelector((state) => state.category);
+
   const {
     register,
     handleSubmit,
@@ -33,9 +46,40 @@ const ContactForm = ({ title, description }: Dependencies) => {
   });
 
   const onSubmit = (data: ContactFormData): void => {
+    // eslint-disable-next-line no-console
     console.log(data);
     reset();
   };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    if (contactId) {
+      dispatch(fetchContactById({ contactId }));
+    }
+
+    return () => controller.abort();
+  }, [contactId, dispatch]);
+
+  useEffect(() => {
+    if (currentContact) {
+      reset({
+        name: currentContact.details.name,
+        email: currentContact.details.email,
+        phone: currentContact.details.phone,
+        categoryId: currentContact.details.categoryId,
+      });
+    }
+
+    return () => {
+      reset();
+    };
+  }, [currentContact, reset]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    dispatch(fetchCategories());
+    return () => controller.abort();
+  }, [dispatch]);
 
   return (
     <form
@@ -76,14 +120,11 @@ const ContactForm = ({ title, description }: Dependencies) => {
         />
         <Select
           label="Categoria"
-          options={[
-            { id: "1", name: "Family" },
-            { id: "2", name: "Friend" },
-            { id: "3", name: "Other" },
-          ]}
+          options={categories?.details || []}
           {...register("categoryId")}
           name={register("categoryId").name}
           onChange={register("categoryId").onChange}
+          value={currentContact?.details.categoryId}
         />
       </div>
 
