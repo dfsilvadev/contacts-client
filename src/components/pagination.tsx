@@ -13,6 +13,9 @@ interface Dependencies {
 const Pagination = ({ pagination, onChangePage }: Dependencies) => {
   const siblingsCount = 1;
 
+  const handlePreviousPage = () => onChangePage(pagination.previousPage);
+  const handleNextPage = () => onChangePage(pagination.nextPage);
+
   const generatePagesArray = (from: number, to: number) => {
     return [...new Array(to - from)]
       .map((_, index) => {
@@ -46,6 +49,7 @@ const Pagination = ({ pagination, onChangePage }: Dependencies) => {
       1,
     [pagination.currentPage, pagination.registersPerPage]
   );
+
   const pageEnd = useMemo(
     () => pageStar + Number(pagination.registersPerPage) - 1,
     [pageStar, pagination.registersPerPage]
@@ -64,6 +68,7 @@ const Pagination = ({ pagination, onChangePage }: Dependencies) => {
               variant="outline"
               size="sm"
               disabled={!pagination.hasPreviousPage}
+              onClick={handlePreviousPage}
             >
               <CaretLeft size={10} />
             </Button>
@@ -146,6 +151,7 @@ const Pagination = ({ pagination, onChangePage }: Dependencies) => {
               variant="outline"
               size="sm"
               disabled={!pagination.hasNextPage}
+              onClick={handleNextPage}
             >
               <CaretRight size={10} />
             </Button>
