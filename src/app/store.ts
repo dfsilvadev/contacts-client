@@ -4,11 +4,13 @@ import {
   type ThunkAction,
 } from "@reduxjs/toolkit";
 
+import categoryReducer from "@/features/categories/slice/categorySlice";
 import contactReducer from "@/features/contacts/slices/contactSlice";
 
 export const store = configureStore({
   reducer: {
     contact: contactReducer,
+    category: categoryReducer,
   },
 });
 
