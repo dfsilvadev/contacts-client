@@ -14,7 +14,7 @@ const ContactsContent = () => {
   const limit = 10;
 
   const dispatch = useAppDispatch();
-  const { contacts: list } = useAppSelector((state) => state.contact);
+  const { list } = useAppSelector((state) => state.contact);
 
   const onChangePage = (newPage: number) => {
     setPage(newPage);
@@ -29,7 +29,8 @@ const ContactsContent = () => {
     const controller = new AbortController();
     dispatch(fetchContacts({ page, limit }));
     return () => controller.abort();
-  }, [dispatch, page]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   return (
     <section className="mx-auto max-w-4xl p-4">

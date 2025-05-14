@@ -1,14 +1,18 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "phosphor-react";
+
 import { Button } from ".";
 
-const DeleteContactModalContent = () => {
+interface Dependencies {
+  readonly contactName: string;
+}
+const DeleteContactModalContent = ({ contactName }: Dependencies) => {
   return (
     <>
       <div className="flex items-start justify-between">
         <Dialog.Title className="m-0 text-2xl text-slate-100">
-          Tem certeza que deseja remover o <br />
-          contato <span className="text-red-500">"Daniel Silva"</span>?
+          Tem certeza que deseja remover <br />
+          <span className="text-red-500">{contactName}</span>?
         </Dialog.Title>
 
         <Dialog.Close asChild>

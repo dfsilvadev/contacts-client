@@ -2,20 +2,24 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import contactService from "../services/contactServices";
 
-import type { Contact, ContactResponse } from "@/data/models/contact";
+import type {
+  Contact,
+  ContactResponse,
+  NewContact,
+} from "@/data/models/contact";
 import type { ErrorResponse } from "@/data/models/erros";
 
 type ContactState = {
-  contacts: ContactResponse<Contact[]> | null;
-  contactById: ContactResponse<Contact> | null;
+  list: ContactResponse<Contact[]> | null;
+  selected: ContactResponse<Contact> | null;
   loading: boolean;
   success: boolean;
   error: ErrorResponse | boolean | undefined;
 };
 
 const initialState: ContactState = {
-  contacts: null,
-  contactById: null,
+  list: null,
+  selected: null,
   loading: false,
   success: false,
   error: false,
@@ -27,7 +31,7 @@ export const fetchContacts = createAsyncThunk<
   { rejectValue: ErrorResponse }
 >("contact/fetchContacts", async ({ page, limit }, { rejectWithValue }) => {
   try {
-    const data = await contactService.list(page, limit);
+    const data = await contactService.findAll(page, limit);
 
     if (!data || ("error" in data && data.error)) {
       return rejectWithValue({
@@ -52,7 +56,32 @@ export const fetchContactById = createAsyncThunk<
   { rejectValue: ErrorResponse }
 >("contact/fetchContactById", async ({ contactId }, { rejectWithValue }) => {
   try {
-    const data = await contactService.getById(contactId);
+    const data = await contactService.findOne(contactId);
+
+    if (!data || ("error" in data && data.error)) {
+      return rejectWithValue({
+        error: true,
+        message: data?.message || "An unknown error occurred.",
+      });
+    }
+
+    return data as ContactResponse<Contact>;
+  } catch (error) {
+    return rejectWithValue({
+      error: true,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred.",
+    });
+  }
+});
+
+export const createContact = createAsyncThunk<
+  ContactResponse<Contact>,
+  { contact: NewContact },
+  { rejectValue: ErrorResponse }
+>("contact/createContact", async ({ contact }, { rejectWithValue }) => {
+  try {
+    const data = await contactService.create(contact);
 
     if (!data || ("error" in data && data.error)) {
       return rejectWithValue({
@@ -91,11 +120,11 @@ const contactSlice = createSlice({
       .addCase(fetchContacts.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.contacts = action.payload;
+        state.list = action.payload;
       })
       .addCase(fetchContacts.rejected, (state, action) => {
         state.loading = false;
-        state.contacts = null;
+        state.list = null;
         state.error = action.payload ?? {
           error: true,
           message: "An unknown error occurred.",
@@ -109,15 +138,24 @@ const contactSlice = createSlice({
       .addCase(fetchContactById.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.contactById = action.payload;
+        state.selected = action.payload;
       })
       .addCase(fetchContactById.rejected, (state, action) => {
         state.loading = false;
-        state.contactById = null;
+        state.selected = null;
         state.error = action.payload ?? {
           error: true,
           message: "An unknown error occurred.",
         };
+      })
+      .addCase(createContact.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = false;
+      })
+      .addCase(createContact.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
       });
   },
 });

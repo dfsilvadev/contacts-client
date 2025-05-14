@@ -24,6 +24,7 @@ type ModalAction = {
 
 interface Dependencies {
   readonly contactId: string;
+  readonly contactName: string;
 }
 
 const modalReducer = (state: ModalState, action: ModalAction): ModalState => {
@@ -42,7 +43,7 @@ const modalReducer = (state: ModalState, action: ModalAction): ModalState => {
   }
 };
 
-const DropdownActions = ({ contactId }: Dependencies) => {
+const DropdownActions = ({ contactId, contactName }: Dependencies) => {
   const [modalState, dispatch] = useReducer(modalReducer, initialState);
 
   const title = "Editar Contato";
@@ -105,7 +106,7 @@ const DropdownActions = ({ contactId }: Dependencies) => {
         onOpenChange={() => toggleModal("delete", null)}
       >
         <Modal>
-          <DeleteContactModalContent />
+          <DeleteContactModalContent {...{ contactName }} />
         </Modal>
       </Dialog.Root>
     </>

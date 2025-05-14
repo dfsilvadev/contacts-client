@@ -6,11 +6,15 @@ import { z } from "zod";
 
 import { Button, Select, TextField } from ".";
 
-import { fetchContactById } from "@/features/contacts/slices/contactSlice";
+import {
+  createContact,
+  fetchContactById,
+} from "@/features/contacts/slices/contactSlice";
 
 import { fetchCategories } from "@/features/categories/slice/categorySlice";
 import useAppDispatch from "@/hooks/useAppDispatch";
 import useAppSelector from "@/hooks/useAppSelector";
+import { formatPhoneNumber, removePhoneMaskForDatabase } from "@/utils/mask";
 
 const contactFormSchema = z.object({
   name: z
@@ -31,10 +35,10 @@ interface Dependencies {
 
 const ContactForm = ({ title, description, contactId }: Dependencies) => {
   const dispatch = useAppDispatch();
-  const { contactById: currentContact } = useAppSelector(
+  const { selected: selectedContact } = useAppSelector(
     (state) => state.contact
   );
-  const { categories } = useAppSelector((state) => state.category);
+  const { list: listCategories } = useAppSelector((state) => state.category);
 
   const {
     register,
@@ -46,8 +50,11 @@ const ContactForm = ({ title, description, contactId }: Dependencies) => {
   });
 
   const onSubmit = (data: ContactFormData): void => {
-    // eslint-disable-next-line no-console
-    console.log(data);
+    const formattedData = {
+      ...data,
+      phone: removePhoneMaskForDatabase(data.phone),
+    };
+    dispatch(createContact({ contact: formattedData }));
     reset();
   };
 
@@ -58,28 +65,27 @@ const ContactForm = ({ title, description, contactId }: Dependencies) => {
     }
 
     return () => controller.abort();
-  }, [contactId, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contactId]);
 
   useEffect(() => {
-    if (currentContact) {
+    if (selectedContact) {
       reset({
-        name: currentContact.details.name,
-        email: currentContact.details.email,
-        phone: currentContact.details.phone,
-        categoryId: currentContact.details.categoryId,
+        name: selectedContact.details.name,
+        email: selectedContact.details.email,
+        phone: formatPhoneNumber(selectedContact.details.phone),
+        categoryId: selectedContact.details.categoryId,
       });
     }
-
-    return () => {
-      reset();
-    };
-  }, [currentContact, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedContact]);
 
   useEffect(() => {
     const controller = new AbortController();
     dispatch(fetchCategories());
     return () => controller.abort();
-  }, [dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <form
@@ -120,11 +126,11 @@ const ContactForm = ({ title, description, contactId }: Dependencies) => {
         />
         <Select
           label="Categoria"
-          options={categories?.details || []}
+          options={listCategories?.details || []}
           {...register("categoryId")}
           name={register("categoryId").name}
           onChange={register("categoryId").onChange}
-          value={currentContact?.details.categoryId}
+          value={selectedContact?.details.categoryId}
         />
       </div>
 

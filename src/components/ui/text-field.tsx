@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { maskPhone } from "@/utils/mask";
+import { applyPhoneMask } from "@/utils/mask";
 
 type InputType = InputHTMLAttributes<HTMLInputElement>;
 
@@ -25,7 +25,7 @@ const TextField: ForwardRefRenderFunction<HTMLInputElement, TextFieldProps> = (
     (evt: FormEvent<HTMLInputElement>) => {
       switch (mask) {
         case "phone":
-          maskPhone(evt);
+          applyPhoneMask(evt);
           break;
         default:
           break;

@@ -4,14 +4,14 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import categoryService from "../service/categoryService";
 
 type CategoryState = {
-  categories: CategoriesResponse<Category[]> | null;
+  list: CategoriesResponse<Category[]> | null;
   loading: boolean;
   success: boolean;
   error: ErrorResponse | boolean | undefined;
 };
 
 const initialState: CategoryState = {
-  categories: null,
+  list: null,
   loading: false,
   success: false,
   error: false,
@@ -62,11 +62,11 @@ const categorySlice = createSlice({
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.categories = action.payload;
+        state.list = action.payload;
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loading = false;
-        state.categories = null;
+        state.list = null;
         state.error = action.payload ?? {
           error: true,
           message: "An unknown error occurred.",

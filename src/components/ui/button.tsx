@@ -6,7 +6,7 @@ import {
   type ForwardRefRenderFunction,
 } from "react";
 
-import { cn } from "@/lib/utils/cn";
+import { cn } from "@/libs/utils/cn";
 
 const buttonVariants = cva(
   "flex gap-2 w-full items-center text-slate-50 justify-center rounded-sm  px-3 py-1.5 text-sm/4 focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer disabled:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-90 disabled:text-gray-700",
