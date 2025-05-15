@@ -1,7 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import contactService from "../services/contactServices";
-
 import type {
   Contact,
   ContactResponse,
@@ -9,12 +7,16 @@ import type {
 } from "@/data/models/contact";
 import type { ErrorResponse } from "@/data/models/erros";
 
+import { handleThunkError } from "@/libs/redux/handleThunkError";
+
+import { ContactService } from "../services/contactServices";
+
 type ContactState = {
   list: ContactResponse<Contact[]> | null;
   selected: ContactResponse<Contact> | null;
   loading: boolean;
   success: boolean;
-  error: ErrorResponse | boolean | undefined;
+  error: ErrorResponse | null;
 };
 
 const initialState: ContactState = {
@@ -22,8 +24,10 @@ const initialState: ContactState = {
   selected: null,
   loading: false,
   success: false,
-  error: false,
+  error: null,
 };
+
+const contactService = new ContactService();
 
 export const fetchContacts = createAsyncThunk<
   ContactResponse<Contact[]>,
@@ -31,22 +35,10 @@ export const fetchContacts = createAsyncThunk<
   { rejectValue: ErrorResponse }
 >("contact/fetchContacts", async ({ page, limit }, { rejectWithValue }) => {
   try {
-    const data = await contactService.findAll(page, limit);
-
-    if (!data || ("error" in data && data.error)) {
-      return rejectWithValue({
-        error: true,
-        message: data?.message || "An unknown error occurred.",
-      });
-    }
-
-    return data as ContactResponse<Contact[]>;
+    const data = await contactService.findAll({ page, limit });
+    return data;
   } catch (error) {
-    return rejectWithValue({
-      error: true,
-      message:
-        error instanceof Error ? error.message : "An unknown error occurred.",
-    });
+    return rejectWithValue(handleThunkError(error));
   }
 });
 
@@ -56,22 +48,10 @@ export const fetchContactById = createAsyncThunk<
   { rejectValue: ErrorResponse }
 >("contact/fetchContactById", async ({ contactId }, { rejectWithValue }) => {
   try {
-    const data = await contactService.findOne(contactId);
-
-    if (!data || ("error" in data && data.error)) {
-      return rejectWithValue({
-        error: true,
-        message: data?.message || "An unknown error occurred.",
-      });
-    }
-
-    return data as ContactResponse<Contact>;
+    const data = await contactService.findOne({ contactId });
+    return data;
   } catch (error) {
-    return rejectWithValue({
-      error: true,
-      message:
-        error instanceof Error ? error.message : "An unknown error occurred.",
-    });
+    return rejectWithValue(handleThunkError(error));
   }
 });
 
@@ -81,22 +61,10 @@ export const createContact = createAsyncThunk<
   { rejectValue: ErrorResponse }
 >("contact/createContact", async ({ contact }, { rejectWithValue }) => {
   try {
-    const data = await contactService.create(contact);
-
-    if (!data || ("error" in data && data.error)) {
-      return rejectWithValue({
-        error: true,
-        message: data?.message || "An unknown error occurred.",
-      });
-    }
-
-    return data as ContactResponse<Contact>;
+    const data = await contactService.create({ contact });
+    return data;
   } catch (error) {
-    return rejectWithValue({
-      error: true,
-      message:
-        error instanceof Error ? error.message : "An unknown error occurred.",
-    });
+    return rejectWithValue(handleThunkError(error));
   }
 });
 
@@ -106,7 +74,7 @@ const contactSlice = createSlice({
   reducers: {
     reset: (state) => {
       state.loading = false;
-      state.error = false;
+      state.error = null;
       state.success = false;
     },
   },
@@ -115,7 +83,7 @@ const contactSlice = createSlice({
       .addCase(fetchContacts.pending, (state) => {
         state.loading = true;
         state.success = false;
-        state.error = false;
+        state.error = null;
       })
       .addCase(fetchContacts.fulfilled, (state, action) => {
         state.loading = false;
@@ -133,7 +101,7 @@ const contactSlice = createSlice({
       .addCase(fetchContactById.pending, (state) => {
         state.loading = true;
         state.success = false;
-        state.error = false;
+        state.error = null;
       })
       .addCase(fetchContactById.fulfilled, (state, action) => {
         state.loading = false;
@@ -151,7 +119,7 @@ const contactSlice = createSlice({
       .addCase(createContact.pending, (state) => {
         state.loading = true;
         state.success = false;
-        state.error = false;
+        state.error = null;
       })
       .addCase(createContact.fulfilled, (state) => {
         state.loading = false;
