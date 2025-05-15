@@ -12,9 +12,14 @@ import {
 } from "@/features/contacts/slices/contactSlice";
 
 import { fetchCategories } from "@/features/categories/slice/categorySlice";
+
 import useAppDispatch from "@/hooks/useAppDispatch";
 import useAppSelector from "@/hooks/useAppSelector";
-import { formatPhoneNumber, removePhoneMaskForDatabase } from "@/utils/mask";
+
+import {
+  formatPhoneNumber,
+  removePhoneMaskForDatabase,
+} from "@/libs/helpers/mask";
 
 const contactFormSchema = z.object({
   name: z
@@ -59,12 +64,9 @@ const ContactForm = ({ title, description, contactId }: Dependencies) => {
   };
 
   useEffect(() => {
-    const controller = new AbortController();
     if (contactId) {
       dispatch(fetchContactById({ contactId }));
     }
-
-    return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contactId]);
 
@@ -81,9 +83,7 @@ const ContactForm = ({ title, description, contactId }: Dependencies) => {
   }, [selectedContact]);
 
   useEffect(() => {
-    const controller = new AbortController();
     dispatch(fetchCategories());
-    return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

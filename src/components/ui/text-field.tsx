@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { applyPhoneMask } from "@/utils/mask";
+import { applyPhoneMask } from "@/libs/helpers/mask";
 
 type InputType = InputHTMLAttributes<HTMLInputElement>;
 

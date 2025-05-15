@@ -3,9 +3,9 @@ import { CaretDown, CaretUp } from "phosphor-react";
 
 import { Badge, DropdownActions } from ".";
 
-import dateHelper from "@/utils/dateHelperConfiguration";
-
 import type { Contact } from "@/data/models/contact";
+
+import dateHelper from "@/libs/helpers/dateHelperConfiguration";
 
 interface Dependencies {
   contacts: Contact[];

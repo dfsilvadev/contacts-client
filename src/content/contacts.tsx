@@ -26,9 +26,7 @@ const ContactsContent = () => {
   );
 
   useEffect(() => {
-    const controller = new AbortController();
     dispatch(fetchContacts({ page, limit }));
-    return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
