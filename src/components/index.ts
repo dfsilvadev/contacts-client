@@ -1,6 +1,5 @@
 export { default as Badge } from "./ui/badge";
 export { default as Button } from "./ui/button";
-export { default as DropdownActions } from "./ui/dropdown-actions";
 export { default as Modal } from "./ui/modal";
 export { default as Select } from "./ui/select-field";
 export { default as TextField } from "./ui/text-field";

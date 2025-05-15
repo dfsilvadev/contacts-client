@@ -5,7 +5,13 @@ import { useState } from "react";
 import { Button, ContactForm, Modal } from ".";
 import SearchField from "./search-field";
 
-const Header = () => {
+import type { Category } from "@/data/models/category";
+
+interface Dependencies {
+  readonly categories: Category[];
+}
+
+const Header = ({ categories }: Dependencies) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
 
   const title = "Adicionar Novo Contato";
@@ -43,7 +49,7 @@ const Header = () => {
         onOpenChange={() => setOpenModal((prevState) => !prevState)}
       >
         <Modal>
-          <ContactForm {...{ title, description }} />
+          <ContactForm {...{ title, description, categories }} />
         </Modal>
       </Dialog.Root>
     </>

@@ -1,4 +1,8 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 
 import type {
   Contact,
@@ -14,6 +18,7 @@ import { ContactService } from "../services/contactServices";
 type ContactState = {
   list: ContactResponse<Contact[]> | null;
   selected: ContactResponse<Contact> | null;
+  currentContactId: string | null;
   loading: boolean;
   success: boolean;
   error: ErrorResponse | null;
@@ -22,6 +27,7 @@ type ContactState = {
 const initialState: ContactState = {
   list: null,
   selected: null,
+  currentContactId: null,
   loading: false,
   success: false,
   error: null,
@@ -77,6 +83,9 @@ const contactSlice = createSlice({
       state.error = null;
       state.success = false;
     },
+    setCurrentContactId: (state, action: PayloadAction<string | null>) => {
+      state.currentContactId = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -128,6 +137,6 @@ const contactSlice = createSlice({
   },
 });
 
-export const { reset } = contactSlice.actions;
+export const { setCurrentContactId, reset } = contactSlice.actions;
 
 export default contactSlice.reducer;

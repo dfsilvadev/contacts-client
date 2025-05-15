@@ -1,25 +1,24 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as Select from "@radix-ui/react-select";
+import { Check } from "phosphor-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button, Select, TextField } from ".";
+import { Button, Select as SelectField, TextField } from ".";
 
-import {
-  createContact,
-  fetchContactById,
-} from "@/features/contacts/slices/contactSlice";
-
-import { fetchCategories } from "@/features/categories/slice/categorySlice";
+import { createContact } from "@/features/contacts/slices/contactSlice";
 
 import useAppDispatch from "@/hooks/useAppDispatch";
-import useAppSelector from "@/hooks/useAppSelector";
 
 import {
   formatPhoneNumber,
   removePhoneMaskForDatabase,
 } from "@/libs/helpers/mask";
+
+import type { Category } from "@/data/models/category";
+import type { Contact } from "@/data/models/contact";
 
 const contactFormSchema = z.object({
   name: z
@@ -35,15 +34,17 @@ export type ContactFormData = z.infer<typeof contactFormSchema>;
 interface Dependencies {
   readonly title: string;
   readonly description: string;
-  readonly contactId: string | null;
+  readonly contact?: Contact | null;
+  readonly categories: Category[];
 }
 
-const ContactForm = ({ title, description, contactId }: Dependencies) => {
+const ContactForm = ({
+  title,
+  description,
+  contact,
+  categories,
+}: Dependencies) => {
   const dispatch = useAppDispatch();
-  const { selected: selectedContact } = useAppSelector(
-    (state) => state.contact
-  );
-  const { list: listCategories } = useAppSelector((state) => state.category);
 
   const {
     register,
@@ -64,28 +65,15 @@ const ContactForm = ({ title, description, contactId }: Dependencies) => {
   };
 
   useEffect(() => {
-    if (contactId) {
-      dispatch(fetchContactById({ contactId }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contactId]);
-
-  useEffect(() => {
-    if (selectedContact) {
+    if (contact) {
       reset({
-        name: selectedContact.details.name,
-        email: selectedContact.details.email,
-        phone: formatPhoneNumber(selectedContact.details.phone),
-        categoryId: selectedContact.details.categoryId,
+        name: contact.name,
+        email: contact.email,
+        phone: formatPhoneNumber(contact.phone),
+        categoryId: contact.categoryId,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedContact]);
-
-  useEffect(() => {
-    dispatch(fetchCategories());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [contact, reset]);
 
   return (
     <form
@@ -124,14 +112,27 @@ const ContactForm = ({ title, description, contactId }: Dependencies) => {
           mask="phone"
           {...register("phone")}
         />
-        <Select
+        <SelectField
           label="Categoria"
-          options={listCategories?.details || []}
+          loading={categories.length <= 0}
           {...register("categoryId")}
           name={register("categoryId").name}
           onChange={register("categoryId").onChange}
-          value={selectedContact?.details.categoryId}
-        />
+          value={contact?.categoryId}
+        >
+          {categories.map((item) => (
+            <Select.Item
+              key={item.id}
+              value={item.id}
+              className="relative flex cursor-pointer items-center justify-between rounded border-transparent px-4 py-2 pr-8 text-sm text-slate-400 data-[highlighted]:bg-transparent data-[highlighted]:text-slate-200"
+            >
+              <Select.ItemText>{item.name}</Select.ItemText>
+              <Select.ItemIndicator className="absolute right-6">
+                <Check weight="bold" className="text-violet-600" />
+              </Select.ItemIndicator>
+            </Select.Item>
+          ))}
+        </SelectField>
       </div>
 
       <div className="mt-4 flex items-center justify-end">
