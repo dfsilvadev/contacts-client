@@ -1,8 +1,4 @@
-import {
-  createAsyncThunk,
-  createSlice,
-  type PayloadAction,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import type {
   Contact,
@@ -13,12 +9,11 @@ import type { ErrorResponse } from "@/data/models/erros";
 
 import { handleThunkError } from "@/libs/redux/handleThunkError";
 
-import { ContactService } from "../services/contactServices";
+import { ContactServices } from "../services/contactServices";
 
 type ContactState = {
   list: ContactResponse<Contact[]> | null;
   selected: ContactResponse<Contact> | null;
-  currentContactId: string | null;
   loading: boolean;
   success: boolean;
   error: ErrorResponse | null;
@@ -27,13 +22,12 @@ type ContactState = {
 const initialState: ContactState = {
   list: null,
   selected: null,
-  currentContactId: null,
   loading: false,
   success: false,
   error: null,
 };
 
-const contactService = new ContactService();
+const contactServices = new ContactServices();
 
 export const fetchContacts = createAsyncThunk<
   ContactResponse<Contact[]>,
@@ -41,7 +35,7 @@ export const fetchContacts = createAsyncThunk<
   { rejectValue: ErrorResponse }
 >("contact/fetchContacts", async ({ page, limit }, { rejectWithValue }) => {
   try {
-    const data = await contactService.findAll({ page, limit });
+    const data = await contactServices.findAll({ page, limit });
     return data;
   } catch (error) {
     return rejectWithValue(handleThunkError(error));
@@ -54,7 +48,7 @@ export const fetchContactById = createAsyncThunk<
   { rejectValue: ErrorResponse }
 >("contact/fetchContactById", async ({ contactId }, { rejectWithValue }) => {
   try {
-    const data = await contactService.findOne({ contactId });
+    const data = await contactServices.findOne({ contactId });
     return data;
   } catch (error) {
     return rejectWithValue(handleThunkError(error));
@@ -67,14 +61,14 @@ export const createContact = createAsyncThunk<
   { rejectValue: ErrorResponse }
 >("contact/createContact", async ({ contact }, { rejectWithValue }) => {
   try {
-    const data = await contactService.create({ contact });
+    const data = await contactServices.create({ contact });
     return data;
   } catch (error) {
     return rejectWithValue(handleThunkError(error));
   }
 });
 
-const contactSlice = createSlice({
+const contactSlices = createSlice({
   name: "contact",
   initialState,
   reducers: {
@@ -82,9 +76,6 @@ const contactSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = false;
-    },
-    setCurrentContactId: (state, action: PayloadAction<string | null>) => {
-      state.currentContactId = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -137,6 +128,6 @@ const contactSlice = createSlice({
   },
 });
 
-export const { setCurrentContactId, reset } = contactSlice.actions;
+export const { reset } = contactSlices.actions;
 
-export default contactSlice.reducer;
+export default contactSlices.reducer;

@@ -1,7 +1,7 @@
 import type { CategoriesResponse, Category } from "@/data/models/category";
 import type { ErrorResponse } from "@/data/models/erros";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import categoryService from "../service/categoryService";
+import categoryService from "../service/categoryServices";
 
 type CategoryState = {
   list: CategoriesResponse<Category[]> | null;

@@ -1,5 +1,4 @@
 /* eslint-disable no-constant-condition */
-import * as Dialog from "@radix-ui/react-dialog";
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import {
   CaretDown,
@@ -8,69 +7,37 @@ import {
   PencilLine,
   Trash,
 } from "phosphor-react";
-import { useReducer } from "react";
+import { memo, useMemo } from "react";
 
-import { Badge, Button, ContactForm, Modal } from ".";
-import DeleteContactModalContent from "./delete-contact-modal-content";
+import { Badge, Button } from ".";
 
 import type { Contact } from "@/data/models/contact";
 
-import type { Category } from "@/data/models/category";
+import useAppDispatch from "@/hooks/useAppDispatch";
+
+import {
+  openModal,
+  type ModalContent,
+  type ModalType,
+} from "@/features/ui/slices/uiSlices";
 
 import dateHelper from "@/libs/helpers/dateHelperConfiguration";
+import { ModalConfig } from "@/libs/helpers/getModalConfig";
+import { formatPhoneNumber } from "@/libs/helpers/mask";
 
 interface Dependencies {
   readonly contacts: Contact[];
-  readonly categories: Category[];
 }
 
-interface ModalState {
-  edit: { open: boolean; contact: Contact | null };
-  delete: { open: boolean; contact: Contact | null };
-}
+const Table = ({ contacts }: Dependencies) => {
+  const dispatch = useAppDispatch();
 
-type ModalAction = {
-  type: "TOGGLE_MODAL";
-  modal: keyof ModalState;
-  contact: Contact | null;
-};
+  const modalConfig = useMemo(() => new ModalConfig(), []);
 
-const initialState: ModalState = {
-  edit: { open: false, contact: null },
-  delete: { open: false, contact: null },
-};
-
-const modalReducer = (state: ModalState, action: ModalAction): ModalState => {
-  switch (action.type) {
-    case "TOGGLE_MODAL":
-      return {
-        ...state,
-        [action.modal]: {
-          open: !state[action.modal].open,
-          contact: action.contact,
-        },
-      };
-
-    default:
-      return state;
-  }
-};
-
-const title = "Editar Contato";
-const description = "Altere os campos abaixo para editar o contato.";
-
-const Table = ({ contacts, categories }: Dependencies) => {
-  const [modalState, dispatch] = useReducer(modalReducer, initialState);
-
-  const toggleModal = ({
-    modal,
-    contact,
-  }: {
-    modal: keyof ModalState;
-    contact: Contact | null;
-  }) => {
-    dispatch({ type: "TOGGLE_MODAL", modal, contact });
-  };
+  const handleOpenModal = (payload: {
+    type: ModalType;
+    content: ModalContent;
+  }) => dispatch(openModal(payload));
 
   return (
     <div className="mt-4">
@@ -106,7 +73,9 @@ const Table = ({ contacts, categories }: Dependencies) => {
                     <td className="rounded-l-sm bg-gray-900 px-2 py-3 font-semibold text-slate-50">
                       {contact.name}
                     </td>
-                    <td className="bg-gray-900 px-2 py-2">{contact.phone}</td>
+                    <td className="bg-gray-900 px-2 py-2">
+                      {formatPhoneNumber(contact.phone)}
+                    </td>
                     <td className="bg-gray-900 px-2 py-2">{contact.email}</td>
                     <td className="bg-gray-900 px-2 py-2">
                       <Badge>{contact.categoryLabel}</Badge>
@@ -132,9 +101,9 @@ const Table = ({ contacts, categories }: Dependencies) => {
                             <Dropdown.Item
                               className="flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 text-sm text-gray-400 hover:bg-gray-800"
                               onClick={() =>
-                                toggleModal({
-                                  modal: "edit",
-                                  contact,
+                                handleOpenModal({
+                                  type: "edit",
+                                  content: modalConfig.handler("edit")(contact),
                                 })
                               }
                             >
@@ -145,9 +114,10 @@ const Table = ({ contacts, categories }: Dependencies) => {
                             <Dropdown.Item
                               className="flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 text-sm text-gray-400 hover:bg-gray-800"
                               onClick={() =>
-                                toggleModal({
-                                  modal: "delete",
-                                  contact,
+                                handleOpenModal({
+                                  type: "delete",
+                                  content:
+                                    modalConfig.handler("delete")(contact),
                                 })
                               }
                             >
@@ -166,47 +136,8 @@ const Table = ({ contacts, categories }: Dependencies) => {
           )}
         </div>
       </div>
-
-      {/* <Modal Edit/> */}
-      <Dialog.Root
-        open={modalState.edit.open}
-        onOpenChange={() =>
-          toggleModal({
-            modal: "edit",
-            contact: null,
-          })
-        }
-      >
-        <Modal>
-          <ContactForm
-            {...{
-              title,
-              description,
-              categories,
-              contact: modalState.edit.contact,
-            }}
-          />
-        </Modal>
-      </Dialog.Root>
-
-      {/* <Modal Delete/> */}
-      <Dialog.Root
-        open={modalState.delete.open}
-        onOpenChange={() =>
-          toggleModal({
-            modal: "delete",
-            contact: null,
-          })
-        }
-      >
-        <Modal>
-          <DeleteContactModalContent
-            {...{ contactName: modalState.delete.contact?.name ?? "" }}
-          />
-        </Modal>
-      </Dialog.Root>
     </div>
   );
 };
 
-export default Table;
+export default memo(Table);

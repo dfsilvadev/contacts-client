@@ -6,7 +6,7 @@ import type {
   NewContact,
 } from "@/data/models/contact";
 
-class ContactService {
+class ContactServices {
   async findAll({ page = 1, limit = 10, endpoint = "/contacts" }) {
     const { data } = await axios.get<ContactResponse<Contact[]>>(
       `${endpoint}?page=${page}&limit=${limit}`
@@ -42,4 +42,4 @@ class ContactService {
   }
 }
 
-export { ContactService };
+export { ContactServices };

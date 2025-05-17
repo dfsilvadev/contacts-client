@@ -1,58 +1,54 @@
-import * as Dialog from "@radix-ui/react-dialog";
 import { FunnelSimple, Plus } from "phosphor-react";
-import { useState } from "react";
+import { useMemo } from "react";
 
-import { Button, ContactForm, Modal } from ".";
+import { Button } from ".";
 import SearchField from "./search-field";
 
-import type { Category } from "@/data/models/category";
+import useAppDispatch from "@/hooks/useAppDispatch";
 
-interface Dependencies {
-  readonly categories: Category[];
-}
+import { ModalConfig } from "@/libs/helpers/getModalConfig";
 
-const Header = ({ categories }: Dependencies) => {
-  const [openModal, setOpenModal] = useState<boolean>(false);
+import {
+  openModal,
+  type ModalContent,
+  type ModalType,
+} from "@/features/ui/slices/uiSlices";
 
-  const title = "Adicionar Novo Contato";
-  const description =
-    " Preencha os campos abaixo para adicionar um novo contato.";
+const Header = () => {
+  const dispatch = useAppDispatch();
 
-  function toggleModal() {
-    setOpenModal((prevState) => !prevState);
-  }
+  const modalConfig = useMemo(() => new ModalConfig(), []);
+
+  const handleOpenModal = (payload: {
+    type: ModalType;
+    content: ModalContent;
+  }) => dispatch(openModal(payload));
 
   return (
-    <>
-      {/* <header /> */}
-      <header className="flex flex-col justify-between py-4 sm:flex-row sm:items-center">
-        <h1 className="text-2xl">Contatos</h1>
+    <header className="flex flex-col justify-between py-4 sm:flex-row sm:items-center">
+      <h1 className="text-2xl">Contatos</h1>
 
-        <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:pt-0">
-          <SearchField />
+      <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:pt-0">
+        <SearchField />
 
-          <div className="flex min-w-50 gap-2">
-            <Button variant="icon">
-              <FunnelSimple weight="bold" />
-            </Button>
-            <Button onClick={toggleModal}>
-              <Plus weight="bold" />
-              Novo contato
-            </Button>
-          </div>
+        <div className="flex min-w-50 gap-2">
+          <Button variant="icon">
+            <FunnelSimple weight="bold" />
+          </Button>
+          <Button
+            onClick={() =>
+              handleOpenModal({
+                type: "create",
+                content: modalConfig.handler("create")(),
+              })
+            }
+          >
+            <Plus weight="bold" />
+            Novo contato
+          </Button>
         </div>
-      </header>
-
-      {/* <Modal /> */}
-      <Dialog.Root
-        open={openModal}
-        onOpenChange={() => setOpenModal((prevState) => !prevState)}
-      >
-        <Modal>
-          <ContactForm {...{ title, description, categories }} />
-        </Modal>
-      </Dialog.Root>
-    </>
+      </div>
+    </header>
   );
 };
 

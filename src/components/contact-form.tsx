@@ -8,10 +8,6 @@ import { z } from "zod";
 
 import { Button, Select as SelectField, TextField } from ".";
 
-import { createContact } from "@/features/contacts/slices/contactSlice";
-
-import useAppDispatch from "@/hooks/useAppDispatch";
-
 import {
   formatPhoneNumber,
   removePhoneMaskForDatabase,
@@ -32,20 +28,11 @@ const contactFormSchema = z.object({
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 
 interface Dependencies {
-  readonly title: string;
-  readonly description: string;
   readonly contact?: Contact | null;
   readonly categories: Category[];
 }
 
-const ContactForm = ({
-  title,
-  description,
-  contact,
-  categories,
-}: Dependencies) => {
-  const dispatch = useAppDispatch();
-
+const ContactForm = ({ contact, categories }: Dependencies) => {
   const {
     register,
     handleSubmit,
@@ -55,13 +42,22 @@ const ContactForm = ({
     resolver: zodResolver(contactFormSchema),
   });
 
-  const onSubmit = (data: ContactFormData): void => {
+  const onSubmit = async (data: ContactFormData): Promise<void> => {
     const formattedData = {
       ...data,
       phone: removePhoneMaskForDatabase(data.phone),
     };
-    dispatch(createContact({ contact: formattedData }));
-    reset();
+
+    // eslint-disable-next-line no-console
+    console.log("Form submitted:", formattedData);
+
+    // const action = await dispatch(createContact({ contact: formattedData }));
+
+    // if (createContact.fulfilled.match(action)) {
+    //   dispatch(fetchContacts({ page: 1, limit: 10 }));
+    //   reset();
+    //   toggleModal?.({ modal: "edit", contact: null });
+    // }
   };
 
   useEffect(() => {
@@ -80,14 +76,6 @@ const ContactForm = ({
       className="flex flex-col items-stretch justify-stretch"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <Dialog.Title className="text-lg font-semibold text-slate-50">
-        {title}
-      </Dialog.Title>
-
-      <Dialog.Description className="mt-2 text-sm text-gray-400">
-        {description}
-      </Dialog.Description>
-
       <div className="mt-4 flex flex-col gap-2 sm:flex-row">
         <TextField
           type="text"
