@@ -2,8 +2,8 @@ import { axios } from "@/libs/axios/axiosInstance";
 
 import type {
   Contact,
+  ContactFormData,
   ContactResponse,
-  NewContact,
 } from "@/data/models/contact";
 
 class ContactServices {
@@ -31,11 +31,27 @@ class ContactServices {
     contact,
     endpoint = "/contacts",
   }: {
-    contact: NewContact;
+    contact: ContactFormData;
     endpoint?: string;
   }) {
     const { data } = await axios.post<ContactResponse<Contact>>(
       `${endpoint}`,
+      contact
+    );
+    return data;
+  }
+
+  async update({
+    contact,
+    contactId,
+    endpoint = "/contacts",
+  }: {
+    contact: ContactFormData;
+    contactId: string;
+    endpoint?: string;
+  }) {
+    const { data } = await axios.put<ContactResponse<Contact>>(
+      `${endpoint}/${contactId}`,
       contact
     );
     return data;

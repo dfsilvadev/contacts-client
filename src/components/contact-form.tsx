@@ -13,8 +13,18 @@ import {
   removePhoneMaskForDatabase,
 } from "@/libs/helpers/mask";
 
+import useAppDispatch from "@/hooks/useAppDispatch";
+
 import type { Category } from "@/data/models/category";
 import type { Contact } from "@/data/models/contact";
+import {
+  createContact,
+  fetchContacts,
+  updateContact,
+} from "@/features/contacts/slices/contactSlices";
+import { closeModal } from "@/features/ui/slices/uiSlices";
+
+import type { AsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
 const contactFormSchema = z.object({
   name: z
@@ -25,7 +35,7 @@ const contactFormSchema = z.object({
   categoryId: z.string().min(1, { message: "Selecione uma categoria." }),
 });
 
-export type ContactFormData = z.infer<typeof contactFormSchema>;
+export type ContactFormDataSchema = z.infer<typeof contactFormSchema>;
 
 interface Dependencies {
   readonly contact?: Contact | null;
@@ -38,26 +48,51 @@ const ContactForm = ({ contact, categories }: Dependencies) => {
     handleSubmit,
     reset,
     formState: { isSubmitting, isValid },
-  } = useForm<ContactFormData>({
+  } = useForm<ContactFormDataSchema>({
     resolver: zodResolver(contactFormSchema),
   });
+  const dispatch = useAppDispatch();
 
-  const onSubmit = async (data: ContactFormData): Promise<void> => {
+  const checkAndRunPostAction = <
+    Returned,
+    ThunkArg,
+    ThunkApiConfig extends { rejectValue?: unknown },
+  >(
+    thunk: AsyncThunk<Returned, ThunkArg, ThunkApiConfig>,
+    action: PayloadAction<unknown>,
+    callback: (payload: Returned) => void
+  ): void => {
+    if (thunk.fulfilled.match(action)) {
+      callback(action.payload as Returned);
+    }
+  };
+
+  const onSubmit = async (data: ContactFormDataSchema): Promise<void> => {
     const formattedData = {
       ...data,
       phone: removePhoneMaskForDatabase(data.phone),
     };
+    let action: PayloadAction<unknown>;
 
-    // eslint-disable-next-line no-console
-    console.log("Form submitted:", formattedData);
+    if (contact && contact.id) {
+      action = await dispatch(
+        updateContact({ contact: formattedData, contactId: contact.id })
+      );
+      checkAndRunPostAction(updateContact, action, () => {
+        dispatch(fetchContacts({ page: 1, limit: 10 }));
+        reset();
+        dispatch(closeModal());
+      });
 
-    // const action = await dispatch(createContact({ contact: formattedData }));
+      return;
+    }
 
-    // if (createContact.fulfilled.match(action)) {
-    //   dispatch(fetchContacts({ page: 1, limit: 10 }));
-    //   reset();
-    //   toggleModal?.({ modal: "edit", contact: null });
-    // }
+    action = await dispatch(createContact({ contact: formattedData }));
+    checkAndRunPostAction(createContact, action, () => {
+      dispatch(fetchContacts({ page: 1, limit: 10 }));
+      reset();
+      dispatch(closeModal());
+    });
   };
 
   useEffect(() => {
