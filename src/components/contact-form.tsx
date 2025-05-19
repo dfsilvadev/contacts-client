@@ -24,7 +24,9 @@ import {
 } from "@/features/contacts/slices/contactSlices";
 import { closeModal } from "@/features/ui/slices/uiSlices";
 
-import type { AsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { checkAndRunPostAction } from "@/libs/redux/checkAndRunPostAction";
+
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 const contactFormSchema = z.object({
   name: z
@@ -52,20 +54,6 @@ const ContactForm = ({ contact, categories }: Dependencies) => {
     resolver: zodResolver(contactFormSchema),
   });
   const dispatch = useAppDispatch();
-
-  const checkAndRunPostAction = <
-    Returned,
-    ThunkArg,
-    ThunkApiConfig extends { rejectValue?: unknown },
-  >(
-    thunk: AsyncThunk<Returned, ThunkArg, ThunkApiConfig>,
-    action: PayloadAction<unknown>,
-    callback: (payload: Returned) => void
-  ): void => {
-    if (thunk.fulfilled.match(action)) {
-      callback(action.payload as Returned);
-    }
-  };
 
   const onSubmit = async (data: ContactFormDataSchema): Promise<void> => {
     const formattedData = {

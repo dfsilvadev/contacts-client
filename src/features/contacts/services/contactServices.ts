@@ -56,6 +56,16 @@ class ContactServices {
     );
     return data;
   }
+
+  async delete({
+    contactId,
+    endpoint = "/contacts",
+  }: {
+    contactId: string;
+    endpoint?: string;
+  }) {
+    await axios.delete(`${endpoint}/${contactId}`);
+  }
 }
 
 export { ContactServices };

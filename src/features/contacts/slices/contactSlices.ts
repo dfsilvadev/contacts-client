@@ -84,6 +84,18 @@ export const updateContact = createAsyncThunk<
   }
 );
 
+export const deleteContact = createAsyncThunk<
+  void,
+  { contactId: string },
+  { rejectValue: ErrorResponse }
+>("contact/deleteContact", async ({ contactId }, { rejectWithValue }) => {
+  try {
+    await contactServices.delete({ contactId });
+  } catch (error) {
+    return rejectWithValue(handleThunkError(error));
+  }
+});
+
 const contactSlices = createSlice({
   name: "contact",
   initialState,
@@ -141,6 +153,14 @@ const contactSlices = createSlice({
         state.loading = false;
         state.success = true;
       })
+      .addCase(createContact.rejected, (state, action) => {
+        state.loading = false;
+        state.selected = null;
+        state.error = action.payload ?? {
+          error: true,
+          message: "An unknown error occurred.",
+        };
+      })
       .addCase(updateContact.pending, (state) => {
         state.loading = true;
         state.success = false;
@@ -149,6 +169,31 @@ const contactSlices = createSlice({
       .addCase(updateContact.fulfilled, (state) => {
         state.loading = false;
         state.success = true;
+      })
+      .addCase(updateContact.rejected, (state, action) => {
+        state.loading = false;
+        state.selected = null;
+        state.error = action.payload ?? {
+          error: true,
+          message: "An unknown error occurred.",
+        };
+      })
+      .addCase(deleteContact.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(deleteContact.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(deleteContact.rejected, (state, action) => {
+        state.loading = false;
+        state.selected = null;
+        state.error = action.payload ?? {
+          error: true,
+          message: "An unknown error occurred.",
+        };
       });
   },
 });

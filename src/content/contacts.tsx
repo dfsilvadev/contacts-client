@@ -11,7 +11,10 @@ import {
   Table,
 } from "@/components";
 
-import { fetchContacts } from "@/features/contacts/slices/contactSlices";
+import {
+  deleteContact,
+  fetchContacts,
+} from "@/features/contacts/slices/contactSlices";
 
 import useAppDispatch from "@/hooks/useAppDispatch";
 import useAppSelector from "@/hooks/useAppSelector";
@@ -23,6 +26,7 @@ import {
   selectContactDetailsPagination,
 } from "@/features/contacts/selectors/contactSelectors";
 import { closeModal } from "@/features/ui/slices/uiSlices";
+import { checkAndRunPostAction } from "@/libs/redux/checkAndRunPostAction";
 
 const ContactsContent = () => {
   const [page, setPage] = useState<number>(1);
@@ -38,6 +42,17 @@ const ContactsContent = () => {
 
   const onChangePage = (newPage: number) => {
     setPage(newPage);
+  };
+
+  const handleDeleteContact = async (contactId?: string) => {
+    if (!contactId) return;
+
+    const action = await dispatch(deleteContact({ contactId }));
+
+    checkAndRunPostAction(deleteContact, action, () => {
+      dispatch(fetchContacts({ page: 1, limit: 10 }));
+      dispatch(closeModal());
+    });
   };
 
   useEffect(() => {
@@ -135,7 +150,13 @@ const ContactsContent = () => {
                     </Button>
                   </Dialog.Close>
 
-                  <Button variant="destructive" size="sm">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() =>
+                      handleDeleteContact(modalContent?.contact?.id)
+                    }
+                  >
                     Deletar
                   </Button>
                 </div>
