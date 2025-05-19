@@ -2,10 +2,11 @@ import { MagnifyingGlass } from "phosphor-react";
 
 import TextField from "./ui/text-field";
 
-import { useSearch } from "@/hooks";
+import useSearchController from "./hooks/useSearchController";
 
 const SearchField = () => {
-  const { query, handleSearchTextChange, handleKeyDown } = useSearch();
+  const { query, handleSearchTextChange, handleKeyDown } =
+    useSearchController();
 
   return (
     <TextField

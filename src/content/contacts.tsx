@@ -1,6 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { WarningOctagon, X } from "phosphor-react";
-import { useEffect, useState } from "react";
 
 import {
   Button,
@@ -11,57 +10,20 @@ import {
   Table,
 } from "@/components";
 
-import {
-  deleteContact,
-  fetchContacts,
-} from "@/features/contacts/slices/contactSlices";
-
-import useAppDispatch from "@/hooks/useAppDispatch";
-import useAppSelector from "@/hooks/useAppSelector";
-
-import { fetchCategories } from "@/features/categories/slice/categorySlices";
-import {
-  selectCategoriesDetails,
-  selectContactDetails,
-  selectContactDetailsPagination,
-} from "@/features/contacts/selectors/contactSelectors";
-import { closeModal } from "@/features/ui/slices/uiSlices";
-import { checkAndRunPostAction } from "@/libs/redux/checkAndRunPostAction";
+import useContactsContentController from "./hooks/useContactsContentController";
 
 const ContactsContent = () => {
-  const [page, setPage] = useState<number>(1);
-  const limit = 10;
-
-  const dispatch = useAppDispatch();
-  const contacts = useAppSelector(selectContactDetails);
-  const pagination = useAppSelector(selectContactDetailsPagination);
-  const categories = useAppSelector(selectCategoriesDetails);
-  const { isOpen, modalContent, modalType } = useAppSelector(
-    (state) => state.ui
-  );
-
-  const onChangePage = (newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleDeleteContact = async (contactId?: string) => {
-    if (!contactId) return;
-
-    const action = await dispatch(deleteContact({ contactId }));
-
-    checkAndRunPostAction(deleteContact, action, () => {
-      dispatch(fetchContacts({ page: 1, limit: 10 }));
-      dispatch(closeModal());
-    });
-  };
-
-  useEffect(() => {
-    dispatch(fetchContacts({ page, limit }));
-  }, [page, dispatch]);
-
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
+  const {
+    contacts,
+    pagination,
+    categories,
+    isOpen,
+    modalContent,
+    modalType,
+    onChangePage,
+    handleDeleteContact,
+    handleOnOpenChange,
+  } = useContactsContentController();
 
   return (
     <section className="mx-auto max-w-4xl p-4">
@@ -69,17 +31,22 @@ const ContactsContent = () => {
       <Header />
 
       {/* <Table /> */}
-      {Array.isArray(contacts) && contacts.length > 0 && (
-        <Table {...{ contacts, categories }} />
+      {contacts.length > 0 && <Table {...{ contacts, categories }} />}
+
+      {/* Empty contacts */}
+      {contacts.length === 0 && (
+        <div className="mt-6 flex h-full items-center justify-center rounded-sm bg-gray-900 p-4 text-sm text-gray-400">
+          Nenhum contato encontrado.
+        </div>
       )}
 
       {/* <Pagination /> */}
-      {contacts.length && pagination && (
+      {contacts.length > 0 && pagination && (
         <Pagination {...{ pagination, onChangePage }} />
       )}
 
       {/* Modal */}
-      <Dialog.Root open={isOpen} onOpenChange={() => dispatch(closeModal())}>
+      <Dialog.Root open={isOpen} onOpenChange={handleOnOpenChange}>
         <Modal>
           {modalType === "create" && (
             <>
@@ -90,6 +57,7 @@ const ContactsContent = () => {
               <Dialog.Description className="mt-2 text-sm text-gray-400">
                 {modalContent?.description}
               </Dialog.Description>
+
               <ContactForm {...{ categories }} />
             </>
           )}
@@ -103,6 +71,7 @@ const ContactsContent = () => {
               <Dialog.Description className="mt-2 text-sm text-gray-400">
                 {modalContent?.description}
               </Dialog.Description>
+
               <ContactForm
                 {...{
                   categories,

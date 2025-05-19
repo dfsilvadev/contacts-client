@@ -1,4 +1,4 @@
-import type { ContactFormDataSchema } from "@/components/contact-form";
+import type { ContactFormDataSchema } from "@/components/hooks/useContactFormController";
 
 type Id = string;
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const useSearch = () => {
+const useSearchController = () => {
   const [query, setQuery] = useState<string>("");
   const [triggerSearch, setTriggerSearch] = useState<boolean>(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -46,4 +46,4 @@ const useSearch = () => {
     handleKeyDown,
   };
 };
-export default useSearch;
+export default useSearchController;
