@@ -8,7 +8,7 @@ import type { Contact } from "@/data/models/contact";
 import type { ModalContent } from "@/features/ui/slices/uiSlices";
 
 interface Dependencies {
-  readonly modalContent?: ModalContent | null;
+  readonly modalContent: ModalContent | null;
   readonly categories: Category[];
   readonly contact?: Contact | null;
 }

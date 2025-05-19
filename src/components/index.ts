@@ -5,6 +5,8 @@ export { default as Select } from "./ui/select-field";
 export { default as TextField } from "./ui/text-field";
 
 export { default as ContactForm } from "./contact-form";
+export { default as EditContactModalBody } from "./edit-contact-modal-body";
+export { default as FormContactModalBody } from "./form-contact-modal-body";
 export { default as Header } from "./header";
 export { default as Pagination } from "./pagination";
 export { default as SearchField } from "./search-field";

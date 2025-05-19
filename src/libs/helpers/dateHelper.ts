@@ -1,5 +1,5 @@
-import { format, type Locale } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
+import { type Locale } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 interface DateHelperConfig {
   locale: Locale;
@@ -30,20 +30,19 @@ class DateHelper {
    * @returns {string} The formatted date string based on the configured pattern.
    * Returns an empty string if the input is invalid.
    */
-  formatDate(dateString: string | Date): string {
-    if (!dateString) {
-      return "";
-    }
+  formatDate(dateInput: string | Date): string {
+    if (!dateInput) return "";
 
     try {
-      const date: Date =
-        typeof dateString === "string" ? new Date(dateString) : dateString;
+      const isoString =
+        typeof dateInput === "string" ? dateInput : dateInput.toISOString();
 
-      const zonedDate = toZonedTime(date, this.config.timeZone);
-
-      return format(zonedDate, this.config.format, {
-        locale: this.config.locale,
-      });
+      return formatInTimeZone(
+        isoString,
+        this.config.timeZone,
+        this.config.format,
+        { locale: this.config.locale }
+      );
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Error formatting date:", error);
