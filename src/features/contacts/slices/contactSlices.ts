@@ -96,6 +96,28 @@ export const deleteContact = createAsyncThunk<
   }
 });
 
+export const searchContacts = createAsyncThunk<
+  ContactResponse<Contact[]>,
+  { query: string; page: number; limit: number },
+  { rejectValue: ErrorResponse }
+>(
+  "contact/searchContact",
+  async ({ query, page, limit }, { rejectWithValue }) => {
+    try {
+      const endpoint = `/contacts/search`;
+      const data = await contactServices.search({
+        page,
+        limit,
+        endpoint,
+        query,
+      });
+      return data;
+    } catch (error) {
+      return rejectWithValue(handleThunkError(error));
+    }
+  }
+);
+
 const contactSlices = createSlice({
   name: "contact",
   initialState,
@@ -188,6 +210,24 @@ const contactSlices = createSlice({
         state.success = true;
       })
       .addCase(deleteContact.rejected, (state, action) => {
+        state.loading = false;
+        state.selected = null;
+        state.error = action.payload ?? {
+          error: true,
+          message: "An unknown error occurred.",
+        };
+      })
+      .addCase(searchContacts.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(searchContacts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.list = action.payload;
+      })
+      .addCase(searchContacts.rejected, (state, action) => {
         state.loading = false;
         state.selected = null;
         state.error = action.payload ?? {

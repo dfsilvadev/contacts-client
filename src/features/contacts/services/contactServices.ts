@@ -66,6 +66,23 @@ class ContactServices {
   }) {
     await axios.delete(`${endpoint}/${contactId}`);
   }
+
+  async search({
+    page = 1,
+    limit = 10,
+    query,
+    endpoint = "/contacts",
+  }: {
+    page: number;
+    limit: number;
+    query: string;
+    endpoint?: string;
+  }) {
+    const { data } = await axios.get<ContactResponse<Contact[]>>(
+      `${endpoint}?name=${query}&page=${page}&limit=${limit}`
+    );
+    return data;
+  }
 }
 
 export { ContactServices };
