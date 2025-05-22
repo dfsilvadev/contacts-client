@@ -1,6 +1,6 @@
-import { FunnelSimple, Plus } from "phosphor-react";
+import { Plus } from "phosphor-react";
 
-import { Button } from ".";
+import { Button, PopoverFilter } from ".";
 import SearchField from "./search-field";
 
 import useModalController from "@/hooks/useModalController";
@@ -16,9 +16,8 @@ const Header = () => {
         <SearchField />
 
         <div className="flex min-w-50 gap-2">
-          <Button variant="icon">
-            <FunnelSimple weight="bold" />
-          </Button>
+          <PopoverFilter />
+
           <Button
             onClick={() =>
               handleOpenModal({
