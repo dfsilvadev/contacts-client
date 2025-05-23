@@ -83,6 +83,36 @@ class ContactServices {
     );
     return data;
   }
+
+  async filter({
+    page = 1,
+    limit = 10,
+    categoryId,
+    createdAtStart,
+    createdAtEnd,
+    endpoint = "/contacts",
+  }: {
+    page: number;
+    limit: number;
+    categoryId?: string;
+    createdAtStart?: string;
+    createdAtEnd?: string;
+    endpoint?: string;
+  }) {
+    const queryParam = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+
+    if (categoryId) queryParam.append("categoryId", categoryId);
+    if (createdAtStart) queryParam.append("createdAtStart", createdAtStart);
+    if (createdAtEnd) queryParam.append("createdAtEnd", createdAtEnd);
+
+    const { data } = await axios.get<ContactResponse<Contact[]>>(
+      `${endpoint}?${queryParam.toString()}`
+    );
+    return data;
+  }
 }
 
 export { ContactServices };

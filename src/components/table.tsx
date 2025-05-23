@@ -17,6 +17,7 @@ import useModalController from "@/hooks/useModalController";
 
 import dateHelper from "@/libs/helpers/dateHelperConfiguration";
 import { formatPhoneNumber } from "@/libs/helpers/mask";
+import { handleCategories } from "@/libs/utils/common/constant/handleCategories";
 
 interface Dependencies {
   readonly contacts: Contact[];
@@ -63,7 +64,7 @@ const Table = ({ contacts }: Dependencies) => {
                   </td>
                   <td className="bg-gray-900 px-2 py-2">{contact.email}</td>
                   <td className="bg-gray-900 px-2 py-2">
-                    <Badge>{contact.categoryLabel}</Badge>
+                    <Badge>{handleCategories[contact.categoryLabel]}</Badge>
                   </td>
                   <td className="bg-gray-900 px-2 py-2">
                     {dateHelper.formatDate(contact.createdAt)}

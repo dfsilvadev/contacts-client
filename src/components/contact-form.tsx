@@ -9,6 +9,8 @@ import type { Contact } from "@/data/models/contact";
 
 import useContactFormController from "./hooks/useContactFormController";
 
+import { handleCategories } from "@/libs/utils/common/constant/handleCategories";
+
 interface Dependencies {
   readonly contact?: Contact | null;
   readonly categories: Category[];
@@ -61,7 +63,7 @@ const ContactForm = ({ contact, categories }: Dependencies) => {
               value={item.id}
               className="relative flex cursor-pointer items-center justify-between rounded border-transparent px-4 py-2 pr-8 text-sm text-slate-400 data-[highlighted]:bg-transparent data-[highlighted]:text-slate-200"
             >
-              <Select.ItemText>{item.name}</Select.ItemText>
+              <Select.ItemText>{handleCategories[item.name]}</Select.ItemText>
               <Select.ItemIndicator className="absolute right-6">
                 <Check weight="bold" className="text-violet-600" />
               </Select.ItemIndicator>
