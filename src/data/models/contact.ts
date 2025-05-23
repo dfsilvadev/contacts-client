@@ -1,8 +1,8 @@
-import type { ContactFormData } from "@/components/contact-form";
+import type { ContactFormDataSchema } from "@/components/hooks/useContactFormController";
 
 type Id = string;
 
-export type NewContact = ContactFormData;
+export type ContactFormData = ContactFormDataSchema;
 
 export type Contact = {
   readonly id: Id;

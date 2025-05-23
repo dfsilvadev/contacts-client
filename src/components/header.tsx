@@ -1,28 +1,12 @@
-import { FunnelSimple, Plus } from "phosphor-react";
-import { useMemo } from "react";
+import { Plus } from "phosphor-react";
 
-import { Button } from ".";
+import { Button, PopoverFilter } from ".";
 import SearchField from "./search-field";
 
-import useAppDispatch from "@/hooks/useAppDispatch";
-
-import { ModalConfig } from "@/libs/helpers/getModalConfig";
-
-import {
-  openModal,
-  type ModalContent,
-  type ModalType,
-} from "@/features/ui/slices/uiSlices";
+import useModalController from "@/hooks/useModalController";
 
 const Header = () => {
-  const dispatch = useAppDispatch();
-
-  const modalConfig = useMemo(() => new ModalConfig(), []);
-
-  const handleOpenModal = (payload: {
-    type: ModalType;
-    content: ModalContent;
-  }) => dispatch(openModal(payload));
+  const { modalConfig, handleOpenModal } = useModalController();
 
   return (
     <header className="flex flex-col justify-between py-4 sm:flex-row sm:items-center">
@@ -32,9 +16,8 @@ const Header = () => {
         <SearchField />
 
         <div className="flex min-w-50 gap-2">
-          <Button variant="icon">
-            <FunnelSimple weight="bold" />
-          </Button>
+          <PopoverFilter />
+
           <Button
             onClick={() =>
               handleOpenModal({

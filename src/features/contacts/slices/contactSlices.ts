@@ -2,8 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import type {
   Contact,
+  ContactFormData,
   ContactResponse,
-  NewContact,
 } from "@/data/models/contact";
 import type { ErrorResponse } from "@/data/models/erros";
 
@@ -57,7 +57,7 @@ export const fetchContactById = createAsyncThunk<
 
 export const createContact = createAsyncThunk<
   ContactResponse<Contact>,
-  { contact: NewContact },
+  { contact: ContactFormData },
   { rejectValue: ErrorResponse }
 >("contact/createContact", async ({ contact }, { rejectWithValue }) => {
   try {
@@ -67,6 +67,89 @@ export const createContact = createAsyncThunk<
     return rejectWithValue(handleThunkError(error));
   }
 });
+
+export const updateContact = createAsyncThunk<
+  ContactResponse<Contact>,
+  { contactId: string; contact: ContactFormData },
+  { rejectValue: ErrorResponse }
+>(
+  "contact/updateContact",
+  async ({ contactId, contact }, { rejectWithValue }) => {
+    try {
+      const data = await contactServices.update({ contactId, contact });
+      return data;
+    } catch (error) {
+      return rejectWithValue(handleThunkError(error));
+    }
+  }
+);
+
+export const deleteContact = createAsyncThunk<
+  void,
+  { contactId: string },
+  { rejectValue: ErrorResponse }
+>("contact/deleteContact", async ({ contactId }, { rejectWithValue }) => {
+  try {
+    await contactServices.delete({ contactId });
+  } catch (error) {
+    return rejectWithValue(handleThunkError(error));
+  }
+});
+
+export const searchContacts = createAsyncThunk<
+  ContactResponse<Contact[]>,
+  { query: string; page: number; limit: number },
+  { rejectValue: ErrorResponse }
+>(
+  "contact/searchContact",
+  async ({ query, page, limit }, { rejectWithValue }) => {
+    try {
+      const endpoint = `/contacts/search`;
+      const data = await contactServices.search({
+        page,
+        limit,
+        endpoint,
+        query,
+      });
+      return data;
+    } catch (error) {
+      return rejectWithValue(handleThunkError(error));
+    }
+  }
+);
+
+export const filterContacts = createAsyncThunk<
+  ContactResponse<Contact[]>,
+  {
+    page: number;
+    limit: number;
+    categoryId: string;
+    createdAtStart?: string;
+    createdAtEnd?: string;
+  },
+  { rejectValue: ErrorResponse }
+>(
+  "contact/filterContacts",
+  async (
+    { page, limit, categoryId, createdAtStart, createdAtEnd },
+    { rejectWithValue }
+  ) => {
+    try {
+      const endpoint = `/contacts/filter`;
+      const data = await contactServices.filter({
+        page,
+        limit,
+        categoryId,
+        createdAtStart,
+        createdAtEnd,
+        endpoint,
+      });
+      return data;
+    } catch (error) {
+      return rejectWithValue(handleThunkError(error));
+    }
+  }
+);
 
 const contactSlices = createSlice({
   name: "contact",
@@ -124,6 +207,84 @@ const contactSlices = createSlice({
       .addCase(createContact.fulfilled, (state) => {
         state.loading = false;
         state.success = true;
+      })
+      .addCase(createContact.rejected, (state, action) => {
+        state.loading = false;
+        state.selected = null;
+        state.error = action.payload ?? {
+          error: true,
+          message: "An unknown error occurred.",
+        };
+      })
+      .addCase(updateContact.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(updateContact.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(updateContact.rejected, (state, action) => {
+        state.loading = false;
+        state.selected = null;
+        state.error = action.payload ?? {
+          error: true,
+          message: "An unknown error occurred.",
+        };
+      })
+      .addCase(deleteContact.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(deleteContact.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(deleteContact.rejected, (state, action) => {
+        state.loading = false;
+        state.selected = null;
+        state.error = action.payload ?? {
+          error: true,
+          message: "An unknown error occurred.",
+        };
+      })
+      .addCase(searchContacts.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(searchContacts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.list = action.payload;
+      })
+      .addCase(searchContacts.rejected, (state, action) => {
+        state.loading = false;
+        state.selected = null;
+        state.error = action.payload ?? {
+          error: true,
+          message: "An unknown error occurred.",
+        };
+      })
+      .addCase(filterContacts.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(filterContacts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.list = action.payload;
+      })
+      .addCase(filterContacts.rejected, (state, action) => {
+        state.loading = false;
+        state.selected = null;
+        state.error = action.payload ?? {
+          error: true,
+          message: "An unknown error occurred.",
+        };
       });
   },
 });

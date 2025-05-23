@@ -1,2 +1,83 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap");
 @import "tailwindcss";
+@import "react-date-range/dist/styles.css";
+@import "react-date-range/dist/theme/default.css";
+
+.rdrDateDisplayWrapper {
+  @apply rounded-lg bg-gray-900 text-white;
+}
+
+.rdrCalendarWrapper {
+  @apply rounded-lg bg-gray-900 text-white;
+}
+
+.rdrDateDisplay {
+  @apply bg-gray-800 text-white;
+}
+
+.rdrMonthAndYearPickers,
+.rdrWeekDays {
+  @apply font-medium tracking-wide uppercase;
+}
+
+.rdrDayNumber span {
+  @apply text-sm;
+}
+
+.rdrDayToday .rdrDayNumber span {
+  @apply rounded border border-violet-400 p-1;
+}
+
+.rdrDayPassive {
+  @apply text-gray-600;
+}
+
+.rdrDayDisabled {
+  @apply cursor-not-allowed opacity-30;
+}
+
+.rdrDayInRange,
+.rdrStartEdge,
+.rdrEndEdge {
+  @apply bg-violet-600 text-white;
+}
+
+.rdrDateInput {
+  @apply border border-violet-600 bg-gray-950 text-white shadow-lg;
+}
+
+.rdrDay:not(.rdrDayPassive):not(.rdrDayInRange):not(.rdrStartEdge):not(
+    .rdrEndEdge
+  )
+  .rdrDayNumber
+  span {
+  @apply text-white;
+}
+
+.rdrDay:not(.rdrDayPassive):hover .rdrDayNumber span {
+  @apply rounded bg-violet-800 text-white transition;
+}
+
+.rdrDayPassive {
+  @apply text-gray-700 opacity-40;
+}
+
+.rdrDayDisabled {
+  @apply cursor-not-allowed bg-gray-800 text-gray-700 opacity-60;
+}
+
+.rdrNextPrevButton {
+  @apply rounded bg-gray-400 text-white transition;
+}
+
+.rdrDateInput input {
+  @apply bg-gray-950 text-white placeholder-gray-400;
+}
+
+@layer utilities {
+  .animate-soft {
+    animation-duration: 400ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+  }
+}

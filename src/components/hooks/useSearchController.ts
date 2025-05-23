@@ -1,15 +1,31 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const useSearch = () => {
+import {
+  fetchContacts,
+  searchContacts,
+} from "@/features/contacts/slices/contactSlices";
+
+import useAppDispatch from "@/hooks/useAppDispatch";
+
+const useSearchController = () => {
   const [query, setQuery] = useState<string>("");
   const [triggerSearch, setTriggerSearch] = useState<boolean>(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const page = 1;
+  const limit = 10;
 
-  const fetchResults = async (searchTerm: string) => {
-    if (!searchTerm.trim()) return;
-    // eslint-disable-next-line no-console
-    console.log(`🔍 Buscando por: ${searchTerm}`);
-  };
+  const dispatch = useAppDispatch();
+
+  const fetchResults = useCallback(
+    async (searchTerm: string) => {
+      if (!searchTerm.trim()) {
+        dispatch(fetchContacts({ page, limit }));
+      }
+
+      dispatch(searchContacts({ query: searchTerm, page, limit }));
+    },
+    [dispatch]
+  );
 
   const handleSearchTextChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = evt.target;
@@ -38,7 +54,7 @@ const useSearch = () => {
       fetchResults(query);
       setTriggerSearch(false);
     }
-  }, [triggerSearch, query]);
+  }, [triggerSearch, query, fetchResults]);
 
   return {
     query,
@@ -46,4 +62,4 @@ const useSearch = () => {
     handleKeyDown,
   };
 };
-export default useSearch;
+export default useSearchController;
