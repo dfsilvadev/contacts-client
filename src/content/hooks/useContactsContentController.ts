@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { fetchCategories } from "@/features/categories/slice/categorySlices";
 import {
@@ -32,13 +32,18 @@ const useContactsContentController = () => {
     setPage(newPage);
   };
 
+  const handleFetchContacts = useCallback(
+    async () => dispatch(fetchContacts({ page, limit })),
+    [dispatch, page, limit]
+  );
+
   const handleDeleteContact = async (contactId?: string) => {
     if (!contactId) return;
 
     const action = await dispatch(deleteContact({ contactId }));
 
     checkAndRunPostAction(deleteContact, action, () => {
-      dispatch(fetchContacts({ page, limit }));
+      handleFetchContacts();
       dispatch(closeModal());
     });
   };
@@ -46,8 +51,8 @@ const useContactsContentController = () => {
   const handleOnOpenChange = () => dispatch(closeModal());
 
   useEffect(() => {
-    dispatch(fetchContacts({ page, limit }));
-  }, [page, dispatch]);
+    handleFetchContacts();
+  }, [handleFetchContacts]);
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -61,6 +66,7 @@ const useContactsContentController = () => {
     modalContent,
     modalType,
     onChangePage,
+    handleFetchContacts,
     handleDeleteContact,
     handleOnOpenChange,
   };
