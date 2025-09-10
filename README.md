@@ -1,54 +1,134 @@
-# React + TypeScript + Vite
+## Contacts Client (React + TypeScript + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação front-end para gerenciamento de contatos, construída com React 19, TypeScript e Vite, utilizando Redux Toolkit para estado global, Axios para comunicação com a API, Radix UI para componentes acessíveis e Tailwind CSS para estilização utilitária.
 
-Currently, two official plugins are available:
+O back-end correspondente está disponível em: [contacts-api](https://github.com/dfsilvadev/contacts-api).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Sumário
+- **Visão Geral**
+- **Arquitetura**
+- **Fluxo de Dados**
+- **Principais Funcionalidades**
+- **Padrões e Convenções**
+- **Configuração e Execução**
+- **Scripts Disponíveis**
+- **Qualidade, Acessibilidade e Performance**
 
-## Expanding the ESLint configuration
+## Visão Geral
+O projeto lista, cria, edita, filtra, pesquisa e remove contatos, com suporte a paginação e categorização. A UI utiliza componentes desacoplados e controladores (hooks) que orquestram chamadas assíncronas via thunks do Redux Toolkit.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Arquitetura
+Estrutura simplificada dos diretórios mais relevantes:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```
+src/
+  app/
+    App.tsx              # Provider do Redux e layout raiz
+    store.ts             # Configuração do Redux Toolkit
+  content/
+    contacts.tsx         # Página/Seção principal de contatos
+    hooks/
+      useContactsContentController.ts
+  features/
+    contacts/
+      slices/contactSlices.ts      # Thunks e reducers de contatos
+      services/contactServices.ts  # Camada de API para contatos
+      selectors/contactSelectors.ts
+    categories/
+      slice/categorySlices.ts      # Thunks e reducers de categorias
+      service/categoryServices.ts  # Camada de API para categorias
+    ui/
+      slices/uiSlices.ts           # Estado de modal (open/type/content)
+  components/
+    ...                            # Tabela, Header, Formulários, Modal, etc.
+  hooks/
+    useAppDispatch.ts
+    useAppSelector.ts
+  libs/
+    axios/axiosInstance.ts         # Instância axios com baseURL
+    axios/axiosService.ts          # Classe fábrica de Axios
+    redux/handleThunkError.ts      # Normalização de erros em thunks
+    redux/checkAndRunPostAction.ts # Pós-ação condicional após thunk
+    helpers/                       # Datas, máscaras, etc.
+    utils/cn.ts                    # Merge de classes (clsx + tailwind-merge)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Camadas
+- **Apresentação (components, content)**: componentes visuais (Header, Table, Pagination, Modal, etc.) e a seção `ContactsContent` que recebe dados do controlador.
+- **Controladores (hooks)**: `useContactsContentController` gerencia paginação, dispara thunks (`fetchContacts`, `deleteContact`, `fetchCategories`) e integra com o estado de UI (modal).
+- **Estado Global (Redux Toolkit)**: slices para `contact`, `category` e `ui`; seletores memorizados com `createSelector`.
+- **Serviços (Axios)**: `ContactServices` e `categoryService` encapsulam chamadas à API, usando a instância de Axios configurada.
+- **Utilitários/Helpers**: datas (`DateHelper`), máscara de telefone (`mask.ts`), composição de classes (`cn.ts`) e normalização de erros (`handleThunkError`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Fluxo de Dados
+1. `App.tsx` registra o `Provider` do Redux e renderiza `ContactsContent`.
+2. `useContactsContentController` efetua:
+   - `fetchContacts({ page, limit })` no mount e a cada mudança de página.
+   - `fetchCategories()` no mount.
+   - `deleteContact(contactId)` seguido de `fetchContacts` e `closeModal` via `checkAndRunPostAction` quando a deleção é bem-sucedida.
+3. `contactSlices.ts` define thunks (findAll, findOne, create, update, delete, search, filter) e gerencia `loading`, `success`, `error`, `list`, `selected`.
+4. `contactSelectors.ts` provê seletores memorizados para `details` e `pagination` com fallback seguro.
+5. `components` recebem dados já moldados e disparam callbacks do controlador (ex.: `onChangePage`).
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+## Principais Funcionalidades
+- **Listagem com paginação**: `fetchContacts` + seletor de paginação.
+- **CRUD de contatos**: thunks `createContact`, `updateContact`, `deleteContact` via `ContactServices`.
+- **Pesquisa e Filtro**: thunks `searchContacts` e `filterContacts` com querystring construída e `URLSearchParams`.
+- **Categorias**: `fetchCategories` popula opções para formulário/filtro.
+- **Modais de criação/edição/remoção**: estado controlado por `uiSlices` (`openModal`, `closeModal`).
+- **Máscara e formatação de telefone**: helpers para input e exibição.
+
+## Padrões e Convenções
+- **TypeScript forte** em slices, serviços e seletores.
+- **Redux Toolkit**: `createAsyncThunk` + `createSlice`; reset de estado com `reset` em slices.
+- **Tratamento de erros**: `handleThunkError` converte erros em `ErrorResponse` estável.
+- **Axios**: instância única via `axiosInstance.ts` usando `VITE_API_BASE_URL`.
+- **Estilização**: Tailwind CSS; util `cn` para mesclar classes com `clsx` e `tailwind-merge`.
+- **Acessibilidade**: componentes de modal baseados em Radix UI.
+- **Formulários**: `react-hook-form` e validadores com `zod` disponíveis (onde aplicável).
+
+## Integração com o Back-end
+- Repositório: [contacts-api](https://github.com/dfsilvadev/contacts-api)
+- Variável de ambiente utilizada no front-end:
+  - `VITE_API_BASE_URL` apontando para a URL base da API (ex.: `http://localhost:3333`).
+
+## Configuração e Execução
+1. Pré-requisitos: Node.js LTS e pnpm/yarn/npm.
+2. Clone este repositório e instale dependências:
+   - `yarn` ou `npm install` ou `pnpm i`
+3. Crie um arquivo `.env` na raiz com:
 ```
+VITE_API_BASE_URL=http://localhost:3333
+```
+4. Rode a aplicação em desenvolvimento:
+```
+yarn dev
+```
+5. Build de produção:
+```
+yarn build
+```
+6. Preview do build:
+```
+yarn preview
+```
+
+## Scripts Disponíveis
+- `dev`: inicia o Vite em modo desenvolvimento.
+- `build`: compila TypeScript e gera build de produção do Vite.
+- `preview`: serve o build localmente.
+- `lint`: executa ESLint no diretório `src` com `--max-warnings=0`.
+- `format`: formata os arquivos de `src` com Prettier.
+- `prepare`: prepara hooks do Husky.
+- `tailwind:init`: inicializa Tailwind (config e PostCSS).
+
+## Qualidade, Acessibilidade e Performance
+- **Linting e Formatação**: ESLint + Prettier (com integração Tailwind) e Husky/Lint-Staged para hooks de commit.
+- **Seletores memorizados**: `createSelector` evita re-renderizações desnecessárias.
+- **Split de responsabilidades**: serviços de API isolados; slices apenas orquestram estado.
+- **UX**: estados de vazio (sem contatos), feedback de `loading`/`error` no estado global (pronto para UI refletir).
+- **A11y**: Radix UI garante semântica e foco adequado em modais.
+
+---
+
+Qualquer dúvida, consulte o código em `src/` e o back-end em [contacts-api](https://github.com/dfsilvadev/contacts-api).
